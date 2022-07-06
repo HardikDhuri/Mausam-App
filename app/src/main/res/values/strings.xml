@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Mausam</string>
+    <string name="title_subtext_view">Your friend to prepare you for the unpredictable nature</string>
+    <string name="title_text_view">Welcome to Mausam</string>
+    <string name="sign_out_button_text">Sign Out</string>
+    <string name="email_text_view">email</string>
+    <string name="username_text_view">username</string>
+    <string name="web_client_id" translatable="false">384373268965-1h5ddb16upi5nsihnfebkpogrvoaqlqn.apps.googleusercontent.com</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_search">Search</string>
+    <string name="title_profile">Profile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+
+<!--    Fragment - Home -->
+    <string name="home_fragment_text">Hello Home fragment</string>
+
+<!--    Fragment - Search -->
+    <string name="search_fragment_text">Hello Search fragment</string>
+
+<!--    Fragment - Profile -->
+    <string name="name_place_holder">Name: </string>
+    <string name="email_place_holder">Email: </string>
+
+    <string name="logout_btn_text">Log out</string>
+    <string name="email_profile_frag">hardikdhuri8347@gmail.com</string>
+    <string name="name_profile_frag">Hardik Dhuri</string>
+    <string name="current_locatin_title">Current Location</string>
+    <string name="date">July 5, 2022</string>
+    <string name="current_weather_card_view_description">Shows the current location weather details</string>
+    <string name="temperature_title">Temp</string>
+    <string name="wind_title">Wind</string>
+    <string name="humidity_title">Humidity</string>
+    <string name="today_title">Today</string>
+    <string name="weekly_view_weekday">Friday</string>
+    <string name="date_short">July, 5</string>
+
+</resources>
