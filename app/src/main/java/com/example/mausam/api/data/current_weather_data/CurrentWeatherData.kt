@@ -1,6 +1,6 @@
-package com.example.mausam.api.current_weather_data
+package com.example.mausam.api.data.current_weather_data
 
-data class WeatherData(
+data class CurrentWeatherData(
     val base: String,
     val clouds: Clouds,
     val cod: Int,

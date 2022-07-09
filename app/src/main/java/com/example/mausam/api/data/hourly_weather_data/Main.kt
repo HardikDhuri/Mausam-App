@@ -1,4 +1,4 @@
-package com.example.mausam.api.hourly_weather_data
+package com.example.mausam.api.data.hourly_weather_data
 
 data class Main(
     val feels_like: Double,

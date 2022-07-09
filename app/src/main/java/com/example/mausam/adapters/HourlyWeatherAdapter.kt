@@ -3,9 +3,14 @@ package com.example.mausam.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mausam.R
 import com.example.mausam.data.WeatherPerHour
+import com.example.mausam.others.Contants
+import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.hourly_weather.view.*
 
 class HourlyWeatherAdapter(
@@ -21,7 +26,9 @@ class HourlyWeatherAdapter(
 
     override fun onBindViewHolder(holder: WeatherViewHolder, position: Int) {
         holder.itemView.apply {
-            hourly_weather_img_view.setImageResource(R.drawable.sun)
+            Glide.with(context)
+                .load("${Contants.IMAGE_URL}/img/wn/${hourlyWeatherList[position].weather_img}@2x.png")
+                .into(this.hourly_weather_img_view)
             hourly_weather_time.text = hourlyWeatherList[position].time
             hourly_weather_temperature.text = hourlyWeatherList[position].temperature
         }

@@ -1,4 +1,4 @@
-package com.example.mausam.api.daily_weather_data
+package com.example.mausam.api.data.hourly_weather_data
 
 data class City(
     val coord: Coord,
@@ -6,5 +6,7 @@ data class City(
     val id: Int,
     val name: String,
     val population: Int,
+    val sunrise: Int,
+    val sunset: Int,
     val timezone: Int
 )

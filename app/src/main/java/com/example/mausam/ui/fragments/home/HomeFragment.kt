@@ -1,100 +1,82 @@
 package com.example.mausam.ui.fragments.home
 
-import android.Manifest
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.mausam.R
 import com.example.mausam.adapters.HourlyWeatherAdapter
 import com.example.mausam.adapters.WeeklyWeatherAdapter
-import com.example.mausam.api.WeatherApi
+import com.example.mausam.api.Weather
+import com.example.mausam.api.data.current_weather_data.CurrentWeatherData
+import com.example.mausam.api.data.daily_weather_data.DailyData
+import com.example.mausam.api.data.daily_weather_data.DailyWeatherData
+import com.example.mausam.api.data.hourly_weather_data.HourlyWeatherData
+import com.example.mausam.api.data.hourly_weather_data.MainHourlyWeather
 import com.example.mausam.data.WeatherPerDay
 import com.example.mausam.data.WeatherPerHour
-import com.example.mausam.others.Contants.BASE_URL
-import com.example.mausam.others.Utility
+import com.example.mausam.others.*
+import com.example.mausam.others.Contants.LAT
+import com.example.mausam.others.Contants.LONG
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.*
 
 class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.PermissionCallbacks {
     private lateinit var locationProvider: FusedLocationProviderClient
-
+    private lateinit var sharedPref: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPref = requireContext().getSharedPreferences("coords", Context.MODE_PRIVATE)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requestPermissions()
 
-
-        val weatherList = mutableListOf<WeatherPerHour>(
-            WeatherPerHour("Apple", "14:00", "32°C"),
-            WeatherPerHour("Apple", "15:00", "12°C"),
-            WeatherPerHour("Apple", "16:00", "62°C"),
-            WeatherPerHour("Apple", "17:00", "32°C"),
-            WeatherPerHour("Apple", "18:00", "72°C"),
-            WeatherPerHour("Apple", "19:00", "22°C"),
-            WeatherPerHour("Apple", "20:00", "92°C"),
-            WeatherPerHour("Apple", "21:00", "22°C"),
-            WeatherPerHour("Apple", "22:00", "42°C"),
-            WeatherPerHour("Apple", "23:00", "32°C"),
-        )
-        val weeklyList = mutableListOf<WeatherPerDay>(
-            WeatherPerDay("Friday", "July, 4", "32°C", "Apple"),
-            WeatherPerDay("Saturday", "July, 5", "52°C", "Apple"),
-            WeatherPerDay("Sunday", "July, 6", "72°C", "Apple"),
-            WeatherPerDay("Monday", "July, 7", "32°C", "Apple"),
-            WeatherPerDay("Tuesday", "July, 8", "62°C", "Apple"),
-            WeatherPerDay("Wednesday", "July, 9", "22°C", "Apple"),
-            WeatherPerDay("Friday", "July, 10", "99°C", "Apple"),
-        )
-
-        val weatherApi = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(WeatherApi::class.java)
-
-
-
-        setHourlyWeatherAdapter(weatherList)
-        setWeeklyWeatherAdapter(weeklyList)
-        CoroutineScope(IO).launch {
-//            val weatherData = weatherApi.getCurrentLocationWeatherData(
-//                key = API_KEY,
-//                latitute = "30",
-//                longitute = "139"
-//            )
-//            Log.d("JSON DATA WEATHER","Data: ${weatherData}")
+        CoroutineScope(Dispatchers.IO).launch {
+            val lat = sharedPref.getString("lat", "0").toString()
+            val long = sharedPref.getString("long", "0").toString()
+            val weather = Weather("51.5072", "0.1276")
+            val currWeatherData= weather.getCurrWeatherData()
+            val hourlyWeatherData = weather.getHourlyWeatherData()
+            Log.d("Hourly Data", hourlyWeatherData.toString())
+            withContext(Dispatchers.Main) {
+                setCurrentWeatherCardView(currWeatherData)
+                setHourlyWeatherAdapter(setHourlyWeatherView(weather.getHourlyWeatherData()))
+                setWeeklyWeatherAdapter(setDailyWeatherView(weather.getWeeklyWeatherData()))
+            }
         }
 
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-            }
+    private fun setLat(lat: String) {
+        LAT = lat
+    }
+
+    private fun setLong(long: String) {
+        LONG = long
     }
 
     private fun setHourlyWeatherAdapter(hourlyWeatherList: List<WeatherPerHour>) {
@@ -111,18 +93,17 @@ class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.Permissio
 
     private fun requestPermissions() {
         if (Utility.hasLocationPermissions(requireContext())) {
-            Snackbar.make(home_fragment, "Has Required Permissions", Snackbar.LENGTH_SHORT).show()
             return
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            Utility.requestPermissionsForLtAndroidQ(this)
+            Utility.requestPermissions(this)
         } else {
-            Utility.requestPermissionsForGtAndroidQ(this)
+            Utility.requestPermissions(this)
+            Utility.requesrPermissionForBackgroundLocation(this)
         }
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
@@ -142,5 +123,53 @@ class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.Permissio
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
+    private fun log(weatherData: CurrentWeatherData) {
+        Log.d("Json", weatherData.toString())
+    }
 
+    private fun setCurrentWeatherCardView(weatherData: CurrentWeatherData) {
+        current_locatin_title.text = weatherData.name
+        date_text_view.text = getDate(weatherData.dt.toLong())
+        temp_value.text = weatherData.main.temp.toString()+"°C"
+        wind_value.text = weatherData.wind.speed.toString()+" km/h"
+        humidity_value.text = weatherData.main.humidity.toString()+"%"
+        Glide.with(requireContext()).load("${Contants.IMAGE_URL}/img/wn/${weatherData.weather[0].icon}@4x.png").into(current_weather_icon)
+    }
+
+    private fun setHourlyWeatherView(weather: HourlyWeatherData): List<WeatherPerHour> {
+        val weatherList = mutableListOf<WeatherPerHour>()
+        val mailWeatherList: List<MainHourlyWeather> = weather.list
+        for (item in mailWeatherList) {
+            val time = item.dt_txt.slice(11..15)
+            val icon = item.weather[0].icon
+            val temp = "${item.main.temp.toString()}°C"
+            weatherList.add(WeatherPerHour(icon, time, temp))
+        }
+        return weatherList
+    }
+
+    private fun setDailyWeatherView(weather: DailyWeatherData): List<WeatherPerDay> {
+        val weatherList = mutableListOf<WeatherPerDay>()
+        val mailWeatherList: List<DailyData> = weather.list
+        for (item in mailWeatherList) {
+            val day = getDayOfWeek(item.dt.toLong())
+            val date = getShortDate(item.dt.toLong())
+            val icon = item.weather[0].icon
+            val temp = "${item.temp.day}°C"
+            weatherList.add(WeatherPerDay(day, date, temp, icon))
+        }
+        return weatherList
+    }
+
+    private fun getDayOfWeek(timestamp: Long): String {
+        return SimpleDateFormat("EEEE", Locale.ENGLISH).format(timestamp * 1000)
+    }
+
+    private fun getDate(timestamp: Long): String {
+        return SimpleDateFormat("MMMM d, YYYY", Locale.ENGLISH).format(timestamp * 1000)
+    }
+
+    private fun getShortDate(timestamp: Long): String {
+        return SimpleDateFormat("MMMM, dd", Locale.ENGLISH).format(timestamp * 1000)
+    }
 }

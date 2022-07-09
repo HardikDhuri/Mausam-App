@@ -1,6 +1,6 @@
-package com.example.mausam.api.hourly_weather_data
+package com.example.mausam.api.data.hourly_weather_data
 
-data class HourlyData(
+data class MainHourlyWeather (
     val clouds: Clouds,
     val dt: Int,
     val dt_txt: String,

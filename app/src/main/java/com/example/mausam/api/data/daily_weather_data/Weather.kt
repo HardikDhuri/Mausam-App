@@ -1,4 +1,4 @@
-package com.example.mausam.api.daily_weather_data
+package com.example.mausam.api.data.daily_weather_data
 
 data class Weather(
     val description: String,

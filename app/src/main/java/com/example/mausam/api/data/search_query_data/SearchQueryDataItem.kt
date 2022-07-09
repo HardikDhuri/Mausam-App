@@ -1,4 +1,4 @@
-package com.example.mausam.api.search_query_data
+package com.example.mausam.api.data.search_query_data
 
 data class SearchQueryDataItem(
     val country: String,
