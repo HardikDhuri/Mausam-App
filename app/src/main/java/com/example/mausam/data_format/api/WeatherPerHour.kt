@@ -1,4 +1,4 @@
-package com.example.mausam.data
+package com.example.mausam.data_format.api
 
 data class WeatherPerHour(
     val weather_img: String,

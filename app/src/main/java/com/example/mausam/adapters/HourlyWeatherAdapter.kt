@@ -3,14 +3,11 @@ package com.example.mausam.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mausam.R
-import com.example.mausam.data.WeatherPerHour
+import com.example.mausam.data_format.api.WeatherPerHour
 import com.example.mausam.others.Contants
-import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.hourly_weather.view.*
 
 class HourlyWeatherAdapter(

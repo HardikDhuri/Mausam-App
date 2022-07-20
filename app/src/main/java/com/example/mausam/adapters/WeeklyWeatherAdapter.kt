@@ -6,9 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mausam.R
-import com.example.mausam.data.WeatherPerDay
+import com.example.mausam.data_format.api.WeatherPerDay
 import com.example.mausam.others.Contants
-import kotlinx.android.synthetic.main.hourly_weather.view.*
 import kotlinx.android.synthetic.main.weekly_weather.view.*
 
 class WeeklyWeatherAdapter(

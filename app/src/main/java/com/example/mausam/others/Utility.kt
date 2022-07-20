@@ -12,6 +12,8 @@ import com.example.mausam.others.Contants.REQUEST_CODE_LOCATION_PERMISSIONS
 import com.example.mausam.ui.fragments.home.HomeFragment
 import kotlinx.android.synthetic.main.fragment_home.*
 import pub.devrel.easypermissions.EasyPermissions
+import java.text.SimpleDateFormat
+import java.util.*
 
 object Utility {
     fun hasLocationPermissions(context: Context) =
@@ -52,7 +54,19 @@ object Utility {
     }
 
     fun isLocationInitialized(sharedPref: SharedPreferences): Boolean {
-        return (sharedPref.getString("lat", "0") != "0" && sharedPref.getString("long", "0") != "0")
+        return (sharedPref.getString("lat", null) != null && sharedPref.getString("long", null) != null)
+    }
+
+    fun getDayOfWeek(timestamp: Long): String {
+        return SimpleDateFormat("EEEE", Locale.ENGLISH).format(timestamp * 1000)
+    }
+
+    fun getDate(timestamp: Long): String {
+        return SimpleDateFormat("MMMM d, YYYY", Locale.ENGLISH).format(timestamp * 1000)
+    }
+
+    fun getShortDate(timestamp: Long): String {
+        return SimpleDateFormat("MMMM, dd", Locale.ENGLISH).format(timestamp * 1000)
     }
 
 

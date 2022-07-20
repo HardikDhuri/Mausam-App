@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,28 +13,28 @@ import com.bumptech.glide.Glide
 import com.example.mausam.R
 import com.example.mausam.adapters.HourlyWeatherAdapter
 import com.example.mausam.adapters.WeeklyWeatherAdapter
-import com.example.mausam.api.Weather
-import com.example.mausam.api.data.current_weather_data.CurrentWeatherData
 import com.example.mausam.api.data.daily_weather_data.DailyData
 import com.example.mausam.api.data.daily_weather_data.DailyWeatherData
 import com.example.mausam.api.data.hourly_weather_data.HourlyWeatherData
 import com.example.mausam.api.data.hourly_weather_data.MainHourlyWeather
-import com.example.mausam.data.WeatherPerDay
-import com.example.mausam.data.WeatherPerHour
+import com.example.mausam.data_format.api.WeatherPerDay
+import com.example.mausam.data_format.api.WeatherPerHour
+import com.example.mausam.database.SetupData
+import com.example.mausam.data_format.database.current_location.CurrLocation
+import com.example.mausam.database.db.WeatherDatabase
 import com.example.mausam.others.*
-import com.example.mausam.others.Contants.LAT
-import com.example.mausam.others.Contants.LONG
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.example.mausam.others.Utility.getDate
+import com.example.mausam.others.Utility.getDayOfWeek
+import com.example.mausam.others.Utility.getShortDate
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import java.text.SimpleDateFormat
-import java.util.*
 
 class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.PermissionCallbacks {
-    private lateinit var locationProvider: FusedLocationProviderClient
     private lateinit var sharedPref: SharedPreferences
+    private lateinit var database: WeatherDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPref = requireContext().getSharedPreferences("coords", Context.MODE_PRIVATE)
@@ -51,32 +50,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.Permissio
     }
 
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requestPermissions()
+        database = WeatherDatabase.getDatabase(requireContext())
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val lat = sharedPref.getString("lat", "0").toString()
-            val long = sharedPref.getString("long", "0").toString()
-            val weather = Weather("51.5072", "0.1276")
-            val currWeatherData= weather.getCurrWeatherData()
-            val hourlyWeatherData = weather.getHourlyWeatherData()
-            Log.d("Hourly Data", hourlyWeatherData.toString())
-            withContext(Dispatchers.Main) {
-                setCurrentWeatherCardView(currWeatherData)
-                setHourlyWeatherAdapter(setHourlyWeatherView(weather.getHourlyWeatherData()))
-                setWeeklyWeatherAdapter(setDailyWeatherView(weather.getWeeklyWeatherData()))
-            }
-        }
-
-    }
-
-    private fun setLat(lat: String) {
-        LAT = lat
-    }
-
-    private fun setLong(long: String) {
-        LONG = long
     }
 
     private fun setHourlyWeatherAdapter(hourlyWeatherList: List<WeatherPerHour>) {
@@ -123,17 +102,14 @@ class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.Permissio
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
-    private fun log(weatherData: CurrentWeatherData) {
-        Log.d("Json", weatherData.toString())
-    }
 
-    private fun setCurrentWeatherCardView(weatherData: CurrentWeatherData) {
+    private fun setCurrentWeatherCardView(weatherData: CurrLocation) {
         current_locatin_title.text = weatherData.name
         date_text_view.text = getDate(weatherData.dt.toLong())
-        temp_value.text = weatherData.main.temp.toString()+"°C"
-        wind_value.text = weatherData.wind.speed.toString()+" km/h"
-        humidity_value.text = weatherData.main.humidity.toString()+"%"
-        Glide.with(requireContext()).load("${Contants.IMAGE_URL}/img/wn/${weatherData.weather[0].icon}@4x.png").into(current_weather_icon)
+        temp_value.text = weatherData.main_temp.toString()+"°C"
+        wind_value.text = weatherData.wind_speed.toString()+" km/h"
+        humidity_value.text = weatherData.main_humidity.toString()+"%"
+        Glide.with(requireContext()).load("${Contants.IMAGE_URL}/img/wn/${weatherData.weather_icon}@4x.png").into(current_weather_icon)
     }
 
     private fun setHourlyWeatherView(weather: HourlyWeatherData): List<WeatherPerHour> {
@@ -159,17 +135,5 @@ class HomeFragment : Fragment(R.layout.fragment_home), EasyPermissions.Permissio
             weatherList.add(WeatherPerDay(day, date, temp, icon))
         }
         return weatherList
-    }
-
-    private fun getDayOfWeek(timestamp: Long): String {
-        return SimpleDateFormat("EEEE", Locale.ENGLISH).format(timestamp * 1000)
-    }
-
-    private fun getDate(timestamp: Long): String {
-        return SimpleDateFormat("MMMM d, YYYY", Locale.ENGLISH).format(timestamp * 1000)
-    }
-
-    private fun getShortDate(timestamp: Long): String {
-        return SimpleDateFormat("MMMM, dd", Locale.ENGLISH).format(timestamp * 1000)
     }
 }
